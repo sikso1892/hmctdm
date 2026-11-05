@@ -27,12 +27,17 @@ test_that("b_Cp and the b_Cp dose recommendation are inverses", {
   expect_equal(get_b_Cp(doseS, F = F, tau = tau, CLp = CL_R, Vmax = Vmax, Km = Km, salt_factor = 0.92), target)
   # no steady state when input exceeds Vmax
   expect_error(get_b_Cp(10000, F = 1, tau = 12, CLp = 0, Vmax = Vmax, Km = Km), "no steady state")
+  # vectorised over dose (and CLp == 0 mixed in)
+  v <- get_b_Cp(c(dose, dose0), F = F, tau = tau, CLp = c(CL_R, 0), Vmax = Vmax, Km = Km)
+  expect_equal(v, c(target, target))
+  expect_length(get_b_Cp(c(100, 200, 300), F = 1, tau = 12, CLp = 0.1, Vmax = Vmax, Km = Km), 3)
 })
 
 test_that("get_recommended_dose scales linearly and returns invisibly", {
   out <- capture.output(d <- get_recommended_dose("AUC", target = 400, current_dose = 500, current_status = 300))
   expect_equal(d, 500 / 300 * 400)
   expect_error(get_recommended_dose("foo", target = 1), "unavailable mode")
+  expect_error(get_recommended_dose(NULL, target = 1), "unavailable mode")
   expect_error(get_recommended_dose("Cp", target = 1), "current_dose")
 })
 

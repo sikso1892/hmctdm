@@ -11,13 +11,12 @@ hmctdmr_postprocess <- function(hmctdm) {
 
   post <- list(status = hmctdm$status, drug = hmctdm$drug)
 
-  post$stan_model_option <- as_tibble(c(list(option = "stan_model_option"),
-    lapply(hmctdm$stan_model_option, function(x) {
-      if (length(x) == 1 && is.atomic(x)) x else list(x)
-    })))
-  post$stan_sample_option <- as_tibble(c(list(option = "stan_sample_option"),
-                                         hmctdm$stan_sample_option[c("chains", "thin", "iter_warmup",
-                                                                     "iter_sampling", "output_dir", "adapt_delta")]))
+  option_tibble <- function(name, opt) {
+    as_tibble(c(list(option = name),
+                lapply(opt, function(x) if (length(x) == 1 && is.atomic(x)) x else list(x))))
+  }
+  post$stan_model_option <- option_tibble("stan_model_option", hmctdm$stan_model_option)
+  post$stan_sample_option <- option_tibble("stan_sample_option", hmctdm$stan_sample_option)
   post$prior <- tibble(parameter = names(hmctdm$prior), value = unlist(hmctdm$prior))
   post$param <- pk_parm
   post$data <- hmctdm$data

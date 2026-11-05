@@ -76,3 +76,16 @@
   are **untested by compilation or sampling** because CmdStan/Torsten is not
   installed in the test environment. A Torsten-enabled Stan >= 2.26 is required.
 * Local `.omx` runtime state is excluded from source package builds.
+
+## PR review follow-up
+
+* `get_b_Cp()` is vectorised again (dose, CLp, ... may be vectors).
+* Prior overrides must be single numbers; mismatched lengths no longer
+  misalign values silently.
+* Required data columns are checked for `NA`; `get_recommended_dose(NULL)`
+  gives the usual "unavailable mode" error.
+* `stanc/` and `stan_output/` are created when the Stan model is compiled or
+  sampled, not during option validation.
+* The default posterior simulation window covers `addl`/`ii` doses.
+* All sampler options (seed, parallel_chains, ...) are kept in the printed
+  summary. mrgsolve models are loaded with `mread_cache()`.

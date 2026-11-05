@@ -139,8 +139,8 @@ hmctdm$mrgmod
 #                  add: <none>
 
 #   compartments:  CENT [1]
-#   parameters:    WT LBW CLCR CL_NR CL_SLOPE VD_NR
-#                  VD_SLOPE UNIT_CL [8]
+#   parameters:    WT LBW CrCL CL_NR CL_SLOPE VD_NR
+#                  UNIT_CL [7]
 #   captures:      CL VD IPRED [3]
 #   omega:         0x0 
 #   sigma:         0x0 
@@ -288,8 +288,8 @@ print(mrgmod)
 #                  add: <none>
 
 #   compartments:  CENT [1]
-#   parameters:    WT LBW CLCR CL_NR CL_SLOPE VD_NR
-#                  VD_SLOPE UNIT_CL [8]
+#   parameters:    WT LBW CrCL CL_NR CL_SLOPE VD_NR
+#                  UNIT_CL [7]
 #   captures:      CL VD IPRED [3]
 #   omega:         0x0 
 #   sigma:         0x0 

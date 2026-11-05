@@ -54,7 +54,7 @@ fake_fit <- function(vars, medians, n = 50) {
 test_that("postprocess keeps only PK parameters and feeds covariates into mrgsolve", {
   obj <- list(status = "init", drug = "amikacin") %>%
     preprocess_valid_data(NULL) %>%
-    preprocess_valid_env(NULL, NULL) %>%
+    preprocess_valid_env(NULL, list(seed = 12)) %>%
     preprocess_valid_prior(NULL)
   obj$stan_result <- list(fit = fake_fit(
     c("lp__", "CL_NR", "VD_NR", "CL_SLOPE", "theta[1]", "theta[2]", "x[1,1]", "x[1,2]",
@@ -73,6 +73,12 @@ test_that("postprocess keeps only PK parameters and feeds covariates into mrgsol
   expect_equal(sim$CL[1], (0.042 * obj$data$LBW[1] + 0.85 * obj$data$CrCL[1]) * 0.06, tolerance = 1e-6)
 
   expect_output(print(post), "Estimated PK Parameters")
+  expect_true("seed" %in% names(post$stan_sample_option))
+
+  # default simulation window covers addl doses
+  obj2 <- obj; obj2$data$addl[1] <- 5; obj2$data$ii[1] <- 12
+  sim2 <- simulate_posterior(hmctdmr_postprocess(obj2), n_draws = 3, delta = 1)
+  expect_gte(max(sim2$time), 60)
 
   sim <- simulate_posterior(post, n_draws = 10, end = 5, delta = 1)
   expect_equal(length(unique(sim$ID)), 10)

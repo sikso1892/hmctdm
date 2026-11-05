@@ -32,6 +32,8 @@ preprocess_valid_data <- function(object, data) {
   if (length(unique(data$ID)) != 1L || anyNA(data$ID)) {
     stop("data must contain exactly one patient ID")
   }
+  na_cols <- required[vapply(data[required], anyNA, logical(1))]
+  if (length(na_cols) > 0) stop("data has NA in required columns: ", toString(na_cols))
   if (!any(data$evid == 0)) stop("data has no observation records (evid == 0)")
 
   if (!("LBW" %in% colnames(data))) {
@@ -57,6 +59,9 @@ preprocess_valid_prior <- function(object, prior) {
     stop("unknown prior name(s): ", toString(unknown), "\n-- available: ", toString(x$name))
   }
 
+  bad <- names(prior)[!vapply(prior, function(v) is.numeric(v) && length(v) == 1, logical(1))]
+  if (length(bad) > 0) stop("prior values must be single numbers: ", toString(bad))
+
   value <- x$value
   override <- x$name %in% names(prior)
   value[override] <- unlist(prior[x$name[override]])
@@ -77,8 +82,6 @@ preprocess_valid_env <- function(object, stan_model_option, stan_sample_option) 
   stan_model_option <- stan_model_option %>%
     set_default("dir", file.path(getwd(), "stanc")) %>%
     set_default("compile", TRUE)
-  if (!dir.exists(stan_model_option$dir)) dir.create(stan_model_option$dir, recursive = TRUE)
-
   stan_sample_option <- stan_sample_option %>%
     set_default("chains", 4) %>%
     set_default("thin", 1)
@@ -87,8 +90,6 @@ preprocess_valid_env <- function(object, stan_model_option, stan_sample_option) 
     set_default("iter_sampling", 2500 * stan_sample_option$thin) %>%
     set_default("output_dir", file.path(getwd(), "stan_output")) %>%
     set_default("adapt_delta", 0.95)
-  if (!dir.exists(stan_sample_option$output_dir)) dir.create(stan_sample_option$output_dir, recursive = TRUE)
-
   object$stan_model_option <- stan_model_option
   object$stan_sample_option <- stan_sample_option
   object

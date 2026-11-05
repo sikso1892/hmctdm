@@ -8,7 +8,7 @@
 #' @return an `mrgmod` object
 #' @export
 get_mrgmod <- function(drug) {
-  mrgsolve::mread(drug, mrglib(), quiet = TRUE)
+  mrgsolve::mread_cache(drug, mrglib(), quiet = TRUE)
 }
 
 # Simulate the posterior predictive concentration-time profile:
@@ -25,7 +25,8 @@ simulate_posterior <- function(hmctdm, n_draws = 200, end = NULL, delta = 0.1) {
   events <- hmctdm$data %>%
     filter(.data$evid != 0) %>%
     select(any_of(c("time", "evid", "amt", "cmt", "ss", "ii", "addl", "rate")))
-  if (is.null(end)) end <- max(hmctdm$data$time) * 1.2
+  # cover the whole regimen: last record or last addl dose, whichever is later
+  if (is.null(end)) end <- max(hmctdm$data$time, hmctdm$data$time + hmctdm$data$addl * hmctdm$data$ii) * 1.2
 
   hmctdm$mrgmod %>%
     mrgsolve::idata_set(draws) %>%

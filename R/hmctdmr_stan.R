@@ -11,6 +11,7 @@ hmctdmr_stan_model <- function(object) {
   if (is.null(object$stan_model_option$stan_file)) {
     object$stan_model_option$stan_file <- file.path(stanLib(), paste0(object$drug, ".stan"))
   }
+  dir.create(object$stan_model_option$dir, recursive = TRUE, showWarnings = FALSE)
   do.call(cmdstanr::cmdstan_model, object$stan_model_option)
 }
 
@@ -46,6 +47,7 @@ hmctdmr_stan_sample <- function(object, stan_model, stanD, stanInit = NULL) {
   opt$data <- stanD
   if (is.null(opt$refresh)) opt$refresh <- 0
   if (is.null(opt$init) && !is.null(stanInit)) opt$init <- stanInit
+  if (!is.null(opt$output_dir)) dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 
   suppressMessages(do.call(stan_model$sample, opt))
 }

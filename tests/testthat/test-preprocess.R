@@ -4,6 +4,8 @@ test_that("prior override replaces only the named entries", {
   expect_equal(obj$prior$Prior_VD_NR, 0.27)
   expect_equal(names(obj$prior), names(get_default_prior("amikacin")))
   expect_error(preprocess_valid_prior(list(drug = "amikacin"), list(bogus = 1)), "unknown prior")
+  expect_error(preprocess_valid_prior(list(drug = "amikacin"), list(CL_NR = c(0.05, 0.06), VD_NR = 0.3)), "single numbers")
+  expect_error(preprocess_valid_prior(list(drug = "amikacin"), list(CL_NR = "a")), "single numbers")
 })
 
 test_that("prior can be overridden with the names returned by get_default_prior()", {
@@ -25,6 +27,8 @@ test_that("sample data gets LBW and CrCL added, NULL data falls back to sample",
     expect_true(all(obj$data$LBW <= obj$data$WT))
   }
   expect_error(preprocess_valid_data(list(drug = "amikacin"), data.frame(ID = 1)), "missing required")
+  d <- get_sample_data("amikacin"); d$evid[2] <- NA
+  expect_error(preprocess_valid_data(list(drug = "amikacin"), d), "NA in required columns: evid")
 })
 
 test_that("stan inits match the parameters block of each model", {
@@ -44,8 +48,11 @@ test_that("stan inits match the parameters block of each model", {
   expect_equal(hmctdmr_stan_stanInit("phenytoin", get_default_prior("phenytoin"), 1)[[1]]$ln_Vmax, log(500))
 })
 
-test_that("default sampler options are filled in", {
-  obj <- preprocess_valid_env(list(), NULL, list(chains = 2))
+test_that("default sampler options are filled in without touching the file system", {
+  before <- list.files(getwd())
+  obj <- preprocess_valid_env(list(), NULL, list(chains = 2, seed = 7))
+  expect_equal(list.files(getwd()), before)
+  expect_equal(obj$stan_sample_option$seed, 7)
   expect_equal(obj$stan_sample_option$chains, 2)
   expect_equal(obj$stan_sample_option$iter_warmup, 2500)
   expect_true(obj$stan_model_option$compile)

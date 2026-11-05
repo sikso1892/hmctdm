@@ -69,9 +69,9 @@ cv_to_sd <- function(cv) sqrt(log(cv^2 + 1))
 #' @export
 get_recommended_dose <- function(mode, target, current_dose = NULL, current_status = NULL, ...) {
   available_mode <- c("Cp", "b_Cp", "AUC")
-  if (missing(mode) || !(mode %in% available_mode)) {
+  if (missing(mode) || is.null(mode) || !isTRUE(mode %in% available_mode)) {
     stop(sprintf('unavailable mode("%s") \n-- available mode list: %s',
-                 if (missing(mode)) "" else mode, toString(available_mode)))
+                 if (missing(mode) || is.null(mode)) "" else toString(mode), toString(available_mode)))
   }
 
   msg <- list(mode = mode, target = target)
@@ -122,15 +122,16 @@ get_recommend_dose_use_b_cp <- function(target, Vmax, CL_R, Km, F, tau, salt_fac
 get_b_Cp <- function(dose, F, tau, CLp, Vmax, Km, salt_factor = 1) {
   r <- dose * salt_factor * F / tau
   Vmax_h <- Vmax / 24
-  if (CLp == 0) {
-    if (r >= Vmax_h) stop("dose rate (", signif(r, 3), " mg/h) >= Vmax/24: no steady state without linear clearance")
-    return(r * Km / (Vmax_h - r))
+  no_ss <- CLp == 0 & r >= Vmax_h
+  if (any(no_ss)) {
+    stop("dose rate (", toString(signif(r[no_ss], 3)), " mg/h) >= Vmax/24: no steady state without linear clearance")
   }
-  # CLp*C^2 + (CLp*Km + Vmax_h - r)*C - r*Km = 0
+  # CLp*C^2 + (CLp*Km + Vmax_h - r)*C - r*Km = 0   (vectorised over every argument)
   a <- CLp
   b <- CLp * Km + Vmax_h - r
   c <- -r * Km
-  # Rationalize the positive root when b >= 0 to avoid cancellation.
-  if (b >= 0) return(-2 * c / (b + sqrt(b^2 - 4 * a * c)))
-  (-b + sqrt(b^2 - 4 * a * c)) / (2 * a)
+  disc <- sqrt(b^2 - 4 * a * c)
+  # positive root; rationalised form when b >= 0 to avoid cancellation, and it
+  # also covers CLp == 0 (a == 0) where it reduces to r*Km/(Vmax_h - r)
+  ifelse(b >= 0, -2 * c / (b + disc), (-b + disc) / (2 * a))
 }
