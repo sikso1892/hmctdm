@@ -207,12 +207,12 @@ creating event(regimens) is described in the mrgsolve specific section below, an
 
 `get_recommended_dose` calculates the appropriate dose by using the following formula to obtain the target result.
 
-paramerters are `mode`, `target`, `current_dose`, `current_status`, `non-linear pk parameters` 
+parameters are `mode`, `target`, `current_dose`, `current_status`, `non-linear pk parameters` 
 
 - `mode` is what you want to target. 
-  - `AUC` is steady-state ![formula](https://render.githubusercontent.com/render/math?math=AUC_t) 
-  - `Cp` is steady-state concetration ![formula](https://render.githubusercontent.com/render/math?math=C_p)
-  - `b_Cp` is average steady-state concentration ![formula](https://render.githubusercontent.com/render/math?math=\overline{C_p})
+  - `AUC` is steady-state $AUC_t$
+  - `Cp` is steady-state concentration $C_p$
+  - `b_Cp` is average steady-state concentration $\overline{C_p}$
   
 - `target` is the desired value
 - `current_dose` is dosage of current regimen
@@ -227,20 +227,20 @@ paramerters are `mode`, `target`, `current_dose`, `current_status`, `non-linear 
 - `non-linear pk params`
   - if `mode` is average steady-state concentration(=`b_Cp`), the following parameters are required. (`Vmax`, `CL_R`, `Km`, `F`, `tau`) 
  
-**5-2) Stedy-state concentration**
+**5-2) Steady-state concentration**
 
-![formula](https://render.githubusercontent.com/render/math?math=\text{Recommended_Dose}=\frac{\text{Current_Dose}}{C^{SS}_{t,\text{current_dose}}}\times{C^{SS}_{t,\text{target}}})
+$$\text{Recommended Dose} = \frac{\text{Current Dose}}{C^{SS}_{t,\text{current dose}}} \times C^{SS}_{t,\text{target}}$$
 
 
 **5-3) Steady-state AUC**
 
-![formula](https://render.githubusercontent.com/render/math?math=\text{Recommended_Dose}=\frac{\text{Current_Dose}}{AUC^{SS}_{t,\text{current_dose}}}\times{AUC^{SS}_{t,\text{target}}})
+$$\text{Recommended Dose} = \frac{\text{Current Dose}}{AUC^{SS}_{t,\text{current dose}}} \times AUC^{SS}_{t,\text{target}}$$
 
 **5-4) Average steady-state concentration**
 
-<img src="https://render.githubusercontent.com/render/math?math=\text{Average concentration} (\overline{C}_\text{Dose}) = \frac{AUC^{SS}_{\tau, Dose}}{\tau}">
-<br/><br/>
-<img src="https://render.githubusercontent.com/render/math?math=\text{Recommended_Dose}=\frac{V_{max}/24 %2B CL_R(K_m %2B \overline{C}_\text{target})}{(K_m %2B \overline{C}_\text{target})F}\times\overline{C}_\text{target}\times\tau">
+$$\overline{C}_{\text{dose}} = \frac{AUC^{SS}_{\tau,\text{dose}}}{\tau}$$
+
+$$\text{Recommended Dose} = \frac{V_{max}/24 + CL_R\,(K_m + \overline{C}_{\text{target}})}{(K_m + \overline{C}_{\text{target}})\,F} \times \overline{C}_{\text{target}} \times \tau$$
 
 (steady state: dose rate in = linear elimination + Michaelis-Menten elimination at the target concentration; `Vmax` in mg/day, `CL_R` in L/h)
 
