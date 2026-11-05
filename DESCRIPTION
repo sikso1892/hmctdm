@@ -1,28 +1,35 @@
 Package: hmctdmr
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
+Title: Bayesian Therapeutic Drug Monitoring with Hamiltonian Monte Carlo
+Version: 0.1.0
+Authors@R:
+    person(given = "Moonsik",
+           family = "Song",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "kimsa4485@gmail.com")
+Description: Estimates individual pharmacokinetic parameters of amikacin,
+    vancomycin, theophylline and phenytoin from sparse therapeutic drug
+    monitoring data by Hamiltonian Monte Carlo (Stan/Torsten), and provides
+    the matching mrgsolve models for posterior predictive simulation and
+    dose recommendation.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Imports: 
+Imports:
+    cmdstanr,
     dplyr,
     ggplot2,
     mrgsolve (>= 0.10.9),
+    rlang,
+    stats,
     stringr,
     tibble,
-    cmdstanr,
-    tidyr
+    utils
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 URL: https://github.com/SikSo1897/hmctdm
 BugReports: https://github.com/SikSo1897/hmctdm/issues
-Suggests: 
-    knitr
+Additional_repositories: https://mc-stan.org/r-packages/

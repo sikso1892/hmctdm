@@ -2,21 +2,37 @@
 % Please edit documentation in R/utils.R
 \name{get_recommended_dose}
 \alias{get_recommended_dose}
-\title{get_recommended_dose() Function}
+\title{Recommended dose for a target exposure}
 \usage{
 get_recommended_dose(
   mode,
-  model = NULL,
-  target = NULL,
+  target,
   current_dose = NULL,
   current_status = NULL,
   ...
 )
 }
+\arguments{
+\item{mode}{one of \code{"AUC"}, \code{"Cp"}, \code{"b_Cp"}}
+
+\item{target}{desired value (AUC, concentration, or average concentration)}
+
+\item{current_dose}{current dose amount}
+
+\item{current_status}{value of the target quantity under the current regimen}
+
+\item{...}{for \code{mode = "b_Cp"}: \code{Vmax} (mg/day, for the patient; for phenytoin
+use the weight-scaled \code{Vmax * (WT/70)^0.6}, i.e. the \code{Norm_Vmax} capture of the
+mrgsolve model), \code{CL_R} (L/h), \code{Km} (mg/L), \code{F} (bioavailability),
+\code{tau} (dosing interval, h), \code{salt_factor} (default 1)}
+}
+\value{
+the recommended dose (invisibly); a summary is printed
+}
 \description{
-This function adds a and b
+For \code{mode = "AUC"} or \code{"Cp"} the dose is scaled linearly:
+\code{current_dose / current_status * target}.
+For \code{mode = "b_Cp"} (average steady-state concentration under
+Michaelis-Menten elimination, approximated by constant input) the dose per interval is
+\code{(Vmax/24 + CL_R * (Km + target)) / ((Km + target) * F) * target * tau}.
 }
-\examples{
-get_recommended_dose()
-}
-\keyword{test}

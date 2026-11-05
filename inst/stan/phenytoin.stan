@@ -1,6 +1,6 @@
 functions {
 
-  vector ODE_NonLinear(real t, vector cmt, real[] parms, real[] x_r, int[] x_i){
+  vector ODE_NonLinear(real t, vector cmt, array[] real parms, array[] real x_r, array[] int x_i){
     
     real Vmax = parms[1];
     real Km = parms[2];
@@ -29,23 +29,23 @@ data {
 
   int<lower=1> nt;                        // number of events
   int<lower=1> nObs;
-  int<lower=1> iObs[nObs];
+  array[nObs] int<lower=1> iObs;
   vector<lower=0>[nObs] cObs;
   
   // torstan parameters (nonmem data)
-  int<lower=1> cmt[nt];
+  array[nt] int<lower=1> cmt;
 
-  int evid[nt];
-  int addl[nt];
-  int ss[nt];
-  real amt[nt];
-  real time[nt];
-  real rate[nt];
-  real ii[nt];
+  array[nt] int evid;
+  array[nt] int addl;
+  array[nt] int ss;
+  array[nt] real amt;
+  array[nt] real time;
+  array[nt] real rate;
+  array[nt] real ii;
 
-  real CrCL[nt];
-  real LBW[nt];  
-  real WT[nt];
+  array[nt] real CrCL;
+  array[nt] real LBW;
+  array[nt] real WT;
 
   real Prior_Vmax;
   real Prior_Km;
@@ -70,7 +70,7 @@ parameters{
 }
 transformed parameters  {
 
-  real parms[4];
+  array[4] real parms;
 
   real Vmax = exp(ln_Vmax);
   real Km = exp(ln_Km);
@@ -82,7 +82,7 @@ transformed parameters  {
   row_vector[nt] cHat;
   row_vector[nObs] cHatObs;
 
-  real<lower=0> sigmaEPS[nObs];
+  array[nObs] real<lower=0> sigmaEPS;
   
   parms[1] = Vmax * pow(WT[1]/70, 0.6);
   parms[2] = Km;
@@ -102,9 +102,9 @@ transformed parameters  {
 model {
 
    /* ... declarations ... statements ... */
-   ln_Vmax ~ normal(log(Prior_Vmax_omega), Prior_Vmax_omega);
-   ln_Km ~ normal(log(Prior_Km_omega), Prior_Km_omega);
-   ln_VD_NR ~ normal(log(Prior_VD_NR_omega), Prior_VD_NR_omega);
+   ln_Vmax ~ normal(log(Prior_Vmax), Prior_Vmax_omega);
+   ln_Km ~ normal(log(Prior_Km), Prior_Km_omega);
+   ln_VD_NR ~ normal(log(Prior_VD_NR), Prior_VD_NR_omega);
 
    for (i in 1:nObs){
     cObs[i] ~ normal(cHatObs[i], sigmaEPS[i]);
