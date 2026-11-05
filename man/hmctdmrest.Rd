@@ -2,7 +2,7 @@
 % Please edit documentation in R/hmctdmr.R
 \name{hmctdmrest}
 \alias{hmctdmrest}
-\title{hmctdmr() Function}
+\title{Bayesian estimation of individual PK parameters}
 \usage{
 hmctdmrest(
   drug = NULL,
@@ -13,12 +13,27 @@ hmctdmrest(
 )
 }
 \arguments{
-\item{a}{,b : two numbers to be operated}
+\item{drug}{one of \code{"amikacin"}, \code{"vancomycin"}, \code{"theophiline"}, \code{"phenytoin"}}
+
+\item{data}{a \code{data.frame} in the format of \code{\link[=get_sample_data]{get_sample_data()}}; \code{NULL} uses
+the sample data}
+
+\item{prior}{named list overriding the default prior, see \code{\link[=get_default_prior]{get_default_prior()}}}
+
+\item{stan_model_option}{list passed to \code{\link[cmdstanr:cmdstan_model]{cmdstanr::cmdstan_model()}}}
+
+\item{stan_sample_option}{list passed to the model's \verb{$sample()} method}
+}
+\value{
+an object of class \code{hmctdm} with elements \code{param} (posterior summary),
+\code{est} (data with posterior median \code{cHat}), \code{draws} (posterior draws of the
+PK parameters), \code{idata}, \code{mrgmod}, \code{prior}, \code{stan_result}
 }
 \description{
-This function adds a and b
+Fits the drug's Stan/Torsten model to the patient's dosing and
+concentration records with HMC, and returns the posterior summaries
+together with an mrgsolve model parameterised with the posterior medians.
 }
-\examples{
-hmctdmr()
+\seealso{
+\code{\link[=plot.hmctdm]{plot.hmctdm()}}, \code{\link[=get_recommended_dose]{get_recommended_dose()}}
 }
-\keyword{hmctdmr}

@@ -1,2 +1,9 @@
-^hmctdm\.Rproj$
+^hmctdmr?\.Rproj$
 ^\.Rproj\.user$
+^\.omc$
+^\.claude$
+^\.github$
+^inst/supplementary$
+^README\.md$
+^man/figure$
+^\.omx$

@@ -1,5 +1,5 @@
 functions {
-  vector OneCptIV_Model(real t, vector cmt, real[] parms, real[] x_r, int[] x_i){
+  vector OneCptIV_Model(real t, vector cmt, array[] real parms, array[] real x_r, array[] int x_i){
     
     real CL = parms[1];
     real VD = parms[2];
@@ -24,21 +24,21 @@ functions {
 data {
   int<lower=1> nt;                        // number of events
   int<lower=1> nObs;
-  int<lower=1> iObs[nObs];
+  array[nObs] int<lower=1> iObs;
   vector<lower=0>[nObs] cObs;
   
   // torstan parameters (nonmem data)
-  int<lower=1> cmt[nt];
-  int evid[nt];
-  int addl[nt];
-  int ss[nt];
-  real amt[nt];
-  real time[nt];
-  real rate[nt];
-  real ii[nt];
+  array[nt] int<lower=1> cmt;
+  array[nt] int evid;
+  array[nt] int addl;
+  array[nt] int ss;
+  array[nt] real amt;
+  array[nt] real time;
+  array[nt] real rate;
+  array[nt] real ii;
   
-  real<lower=0> CrCL[nt];
-  real<lower=0> LBW[nt];
+  array[nt] real<lower=0> CrCL;
+  array[nt] real<lower=0> LBW;
 
   real Prior_CL_NR;
   real Prior_VD_NR; 
@@ -57,18 +57,18 @@ transformed data{
 
 parameters {
 
-  real CL_NR;
-  real VD_NR;
-  real CL_SLOPE;
+  real<lower=0> CL_NR;
+  real<lower=0> VD_NR;
+  real<lower=0> CL_SLOPE;
 
 }
 
 transformed parameters {
-  real theta[nTheta];
+  array[nTheta] real theta;
 
   row_vector[nt] cHat;
   row_vector[nObs] cHatObs;
-  real<lower=0> sigmaEPS[nObs];
+  array[nObs] real<lower=0> sigmaEPS;
   
   real CL = (CL_NR *  max(LBW)  + CL_SLOPE * max(CrCL) ) *  60 / 1000;
   real VD = (VD_NR *  max(LBW));

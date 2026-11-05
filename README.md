@@ -79,13 +79,13 @@ print(hmctdm)
 # Drug:  Amikacin 
 
 
-# Stan sample option: 
+# Stan model option: 
 # # A tibble: 1 × 3
 #   option            dir       compile
 #   <chr>             <chr>     <chr>  
 # 1 stan_model_option .../stanc TRUE   
 
-# Stan model option: 
+# Stan sample option: 
 # # A tibble: 1 × 7
 #   option             chains thin  iter_warmup iter_sampling output_dir      adapt_delta
 #   <chr>              <chr>  <chr> <chr>       <chr>         <chr>           <chr>      
@@ -167,12 +167,18 @@ mrgmod
 # 7:   1  2.5    0    0   0  0  0    0    0   1  79 43.98 155.7 43.98 1.072 147.84 1.651 14.75 51.25
 # 8:   1  3.0    0    0   0  0  0    0    0   1  79 43.98 155.7 43.98 1.072 172.76 1.651 14.75 48.46
 ```
-This object can use generic functions. More details can be found [here](https://mrgsolve.github.io/). below is generic functions example.  
-``` r
-mrgmod %>%
-  mrgsolve::plot(IPRED ~ time)
+This object can use generic functions. More details can be found [here](https://mrgsolve.github.io/), e.g. `mrgmod %>% mrgsolve::plot(IPRED ~ time)`.
+
+#### **4-1) posterior predictive plot**
+`plot()` on the result simulates the patient's dosing history for a sample of posterior draws (`n_draws`, default 200) and draws the posterior median with a 90% credible band over the observed concentrations. The band is the uncertainty of the individual estimate, which is what the MCMC adds over a point (MAP) estimate.
+
+```r
+plot(hmctdm)                       # ggplot object, can be customised further
+plot(hmctdm, n_draws = 500, end = 24)
 ```
 [![](man/figure/README-plot1-1.png)](#)
+
+The posterior draws of the PK parameters are available as `hmctdm$draws` (a `data.frame`, one row per draw) for any further summary.
 
 #### **5) usage for get recommended dose**
 using the mrgsolve model in which the parameters estimated above are used, various dosage regimens can be simulated and drug titration regimens can be obtained. (`get_recommended_dose`, `get_b_cp`)
@@ -234,16 +240,22 @@ paramerters are `mode`, `target`, `current_dose`, `current_status`, `non-linear 
 
 <img src="https://render.githubusercontent.com/render/math?math=\text{Average concentration} (\overline{C}_\text{Dose}) = \frac{AUC^{SS}_{\tau, Dose}}{\tau}">
 <br/><br/>
-<img src="https://render.githubusercontent.com/render/math?math=\text{Recommended_Dose}=\frac{\text{Current_Dose}}{\overline{C}_\text{current dose}}\times{\overline{C}_\text{target}}">
+<img src="https://render.githubusercontent.com/render/math?math=\text{Recommended_Dose}=\frac{V_{max}/24 %2B CL_R(K_m %2B \overline{C}_\text{target})}{(K_m %2B \overline{C}_\text{target})F}\times\overline{C}_\text{target}\times\tau">
+
+(steady state: dose rate in = linear elimination + Michaelis-Menten elimination at the target concentration; `Vmax` in mg/day, `CL_R` in L/h)
 
 
 
 ```r
-get_recommended_dose(mode=mode, target=target, 
+dose <- get_recommended_dose(mode=mode, target=target, 
                       current_dose=current_dose,
                       current_status=current_status,
                       ...)
 # ... is non-linear pk params. if mode use b_Cp, have to insert non-linear pk params like Vmax mentioned at above phrase
+# the recommended dose is printed and returned invisibly
+
+# average steady-state concentration for a given regimen (inverse of the b_Cp mode)
+get_b_Cp(dose=300, F=1, tau=12, CLp=0.1, Vmax=500, Km=5)
 ```
 
 ## **Specific**
@@ -379,6 +391,7 @@ sample_data
 - `time`, `evid`, `amt`, `cmt`, `ss`, `ii`, `addl`, `rate` are described in the mrgsolve specific section..
 - `SEX`, `AGE`, `WT`, `HT` are demographics. (sex, age, weight, height)
 - `SCR`, `DV` is serum creatinine and concentration.
+- `LBW` (Peck) and `CrCL` (Cockcroft-Gault, 0.85 x for `SEX`=1, clamped to 10.3-127.1 mL/min) are computed from the above unless the columns are already present.
 
 
 #### **2-3) prior**
@@ -415,6 +428,15 @@ hmctdm <- hmctdmr::hmctdmrest(
                     ))
 }
 ```
+Prior names that can be overridden (`<name>` is the centre, `<name>_omega` the log-scale SD):
+
+| drug | names |
+|---|---|
+| amikacin | `CL_NR`, `VD_NR`, `CL_SLOPE` |
+| vancomycin | `CL_NR`, `VC_NR`, `CL_SLOPE`, `k12`, `k21` |
+| theophiline | `ka` (fixed, not estimated), `CL_NR`, `VC_NR` |
+| phenytoin | `Vmax`, `Km`, `VD_NR` |
+
 #### **2-4) stan_model_option**
 
 stan_model_option is an option for creating a new CmdStanModel object from a file containing a Stan program. More information on the options can be found [here](https://mc-stan.org/cmdstanr/reference/cmdstan_model.html) 
@@ -424,5 +446,11 @@ stan_sample_option is option of `$sample()` method CmdStanModel objcet runs the 
 
  
 ## **Development**
+Unit tests (helpers, prior handling, mrgsolve models, post-processing with a mocked Stan fit) run without CmdStan:
+```r
+devtools::test()
+```
+See `NEWS.md` for changes.
+
 hmctdm is under development. Your feedback for additional feature requests or bug reporting is welcome. Contact us through the issue tracker.
 

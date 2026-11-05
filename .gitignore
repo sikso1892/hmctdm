@@ -79,3 +79,4 @@ stan_output
 stanc
 .vscode/settings.json
 inst/stan/amikacin
+.omc/

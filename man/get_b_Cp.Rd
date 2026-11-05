@@ -2,14 +2,33 @@
 % Please edit documentation in R/utils.R
 \name{get_b_Cp}
 \alias{get_b_Cp}
-\title{get_b_Cp() Function}
+\title{Constant-input steady-state concentration under Michaelis-Menten elimination}
 \usage{
-get_b_Cp(dose, F, tau, CLp, Vd, Vmax, Km, salt_factor = 1)
+get_b_Cp(dose, F, tau, CLp, Vmax, Km, salt_factor = 1)
+}
+\arguments{
+\item{dose}{dose amount (mg)}
+
+\item{F}{bioavailability}
+
+\item{tau}{dosing interval (h)}
+
+\item{CLp}{linear (e.g. renal) clearance (L/h); 0 if none}
+
+\item{Vmax}{maximum elimination rate (mg/day) for the patient (for phenytoin
+the weight-scaled \code{Norm_Vmax}, not the 70 kg reference \code{Vmax})}
+
+\item{Km}{Michaelis constant (mg/L)}
+
+\item{salt_factor}{salt factor (default 1)}
+}
+\value{
+constant-input steady-state concentration (mg/L)
 }
 \description{
-This function adds a and b
+Solves \code{r = CLp * C + (Vmax/24) * C / (Km + C)} for \code{C}, where
+\code{r = dose * salt_factor * F / tau} is the average input rate (mg/h).
 }
-\examples{
-get_b_Cp()
-}
-\keyword{test}
+
+\details{Exact for constant input; an approximation to the average concentration
+for intermittent dosing because elimination is nonlinear.}
